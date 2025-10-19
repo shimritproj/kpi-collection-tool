@@ -41,7 +41,11 @@ func main() {
 		fmt.Printf("Failed to initialize logger: %v\n", err)
 		os.Exit(1)
 	}
-	defer logF.Close()
+	defer func() {
+		if err := logF.Close(); err != nil {
+			fmt.Printf("Failed to close log file: %v\n", err)
+		}
+	}()
 
 	log.Println("RDS KPI Collector initialized.")
 

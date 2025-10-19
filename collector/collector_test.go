@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -8,7 +9,12 @@ import (
 
 func TestSaveJSON(t *testing.T) {
 	tmpFile := "test_output.json"
-	defer os.Remove(tmpFile)
+
+	defer func() {
+		if err := os.Remove(tmpFile); err != nil {
+			fmt.Printf("Failed to remove temp file %s: %v\n", tmpFile, err)
+		}
+	}()
 
 	data := map[string]interface{}{
 		"a": 123,

@@ -9,13 +9,21 @@ import (
 
 func TestInitLogger(t *testing.T) {
 	tmpFile := "test_log.log"
-	defer os.Remove(tmpFile)
+	defer func() {
+		if err := os.Remove(tmpFile); err != nil {
+			log.Printf("Warning: failed to remove temp file %s: %v", tmpFile, err)
+		}
+	}()
 
 	f, err := InitLogger(tmpFile)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Printf("Warning: failed to close file: %v", err)
+		}
+	}()
 
 	// Check the file actually exists
 	info, err := os.Stat(tmpFile)
