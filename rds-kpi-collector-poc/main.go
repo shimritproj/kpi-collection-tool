@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -52,7 +53,11 @@ func loadKPIs() (KPIs, error) {
 	if err != nil {
 		return KPIs{}, fmt.Errorf("failed to open kpis.json: %v", err)
 	}
-	defer kpisFile.Close()
+	defer func() {
+		if err := kpisFile.Close(); err != nil {
+			log.Printf("failed to close kpis.json file: %v", err)
+		}
+	}()
 
 	var kpis KPIs
 	decoder := json.NewDecoder(kpisFile)

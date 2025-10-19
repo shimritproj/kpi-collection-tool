@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
-	"rds-kpi-collector/database"
+	"kpi-collection-tool/rds-kpi-collector/database"
 
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -51,7 +52,11 @@ func runQueries(kpisToRun KPIs, flags InputFlags) error {
 	if err != nil {
 		return fmt.Errorf("failed to init database: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Printf("failed to close database: %v", err)
+		}
+	}()
 
 	// Get or create cluster in DB
 	clusterID, err := database.GetOrCreateCluster(db, flags.ClusterName)
