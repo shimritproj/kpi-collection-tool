@@ -9,6 +9,10 @@ import (
 // setupFlags parses and validates command line flags, returns InputFlags struct
 func SetupFlags() (InputFlags, error) {
 	var flags InputFlags
+	var configFile string
+
+	flag.StringVar(&configFile, "f", "", "path to YAML configuration file")
+	flag.StringVar(&configFile, "config-file", "", "path to YAML configuration file (alternative to -f)")
 
 	flag.StringVar(&flags.BearerToken, "token", "", "bearer token for thanos-queries")
 	flag.StringVar(&flags.ThanosURL, "thanos-url", "", "thanos url for http requests")
@@ -23,6 +27,11 @@ func SetupFlags() (InputFlags, error) {
 	flag.StringVar(&flags.DatabaseType, "db-type", "sqlite", "database type: sqlite or postgres (default: sqlite)")
 	flag.StringVar(&flags.PostgresURL, "postgres-url", "", "PostgreSQL connection string (required if db-type=postgres)")
 	flag.Parse()
+
+	// If config file is provided, load from YAML and return immediately
+	if configFile != "" {
+		return LoadConfigFromYAML(configFile)
+	}
 
 	err := validateFlags(flags)
 	return flags, err
